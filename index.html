@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Centro Oficial de Recargas - COD Mobile</title>
+  <!-- Ícono / Logo para las pestañas del navegador -->
+  <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -53,21 +55,12 @@
       gap: 12px;
     }
 
-    .logo i {
-      font-size: 2rem;
-      color: var(--gold);
-      position: relative;
-    }
-
-    .crosshair-dot {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 4px;
-      height: 4px;
-      background: red;
+    .logo img {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
+      border: 2px solid var(--gold);
+      object-fit: cover;
     }
 
     .logo-text {
@@ -531,7 +524,6 @@
       cursor: pointer;
     }
 
-    /* Previene errores de clics en elementos hijos */
     .cp-card *, .pay-option * {
       pointer-events: none;
     }
@@ -539,13 +531,11 @@
 </head>
 <body>
 
-  <!-- Encabezado -->
+  <!-- Encabezado con la ardilla como logo -->
   <header>
     <div class="header-content">
       <div class="logo">
-        <i class="fa-solid fa-crosshair">
-          <span class="crosshair-dot"></span>
-        </i>
+        <img src="logo.png" alt="Logo Ardilla">
         <div class="logo-text">
           <span class="brand">CALL OF DUTY</span>
           <span class="subbrand">MOBILE • TOP-UP CENTER</span>
@@ -743,7 +733,7 @@
 
   </main>
 
-  <!-- Modal de Procesamiento / Confirmación -->
+  <!-- Modal de Confirmación -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <div class="modal-icon"><i class="fa-solid fa-circle-check"></i></div>
@@ -765,15 +755,12 @@
   </div>
 
   <script>
-    // URL de tu Google Apps Script enlazada a Google Sheets (Cuenta Personal)
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwEg-7DGuH4M0bOFOhhoMuf5hz5s5WAz0oIfFJ5BKm_SkaXziMx_LSKq6lX-VOI52c/exec";
 
-    // Estado de la aplicación
     let isUidValid = false;
     let selectedCpData = null;
     let selectedPayment = null;
 
-    // Elementos del DOM
     const playerIdInput = document.getElementById('playerId');
     const verifyBtn = document.getElementById('verifyBtn');
     const playerStatus = document.getElementById('playerStatus');
@@ -796,7 +783,6 @@
     const modalPay = document.getElementById('modalPay');
     const modalTotal = document.getElementById('modalTotal');
 
-    // 1. Validación de UID
     if (verifyBtn) {
       verifyBtn.addEventListener('click', validateUID);
     }
@@ -818,7 +804,6 @@
       checkFormCompletion();
     }
 
-    // 2. Selección de Paquete de CP
     cpCards.forEach(card => {
       card.addEventListener('click', (e) => {
         const targetCard = e.currentTarget;
@@ -829,10 +814,7 @@
         const cp = targetCard.getAttribute('data-cp');
         const price = targetCard.getAttribute('data-price');
 
-        selectedCpData = {
-          cp: cp,
-          price: price
-        };
+        selectedCpData = { cp: cp, price: price };
 
         if (sumPack) {
           sumPack.textContent = cp.includes('Pase') ? cp : `${cp} CP`;
@@ -845,7 +827,6 @@
       });
     });
 
-    // 3. Selección de Método de Pago
     payOptions.forEach(option => {
       option.addEventListener('click', (e) => {
         const targetPay = e.currentTarget;
@@ -862,7 +843,6 @@
       });
     });
 
-    // 4. Filtrado por Pestañas (Tabs)
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
@@ -881,7 +861,6 @@
       });
     });
 
-    // 5. Verificar si se habilita el botón de pago
     function checkFormCompletion() {
       if (isUidValid && selectedCpData !== null && selectedPayment !== null) {
         if (payBtn) payBtn.disabled = false;
@@ -890,21 +869,13 @@
       }
     }
 
-    // Función para enviar datos a Google Sheets
     function guardarEnBaseDeDatos(uid, paquete, metodoPago, monto) {
-      const datos = {
-        uid: uid,
-        paquete: paquete,
-        metodoPago: metodoPago,
-        monto: monto
-      };
+      const datos = { uid: uid, paquete: paquete, metodoPago: metodoPago, monto: monto };
 
       fetch(URL_SCRIPT, {
         method: 'POST',
         mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(datos)
       })
       .then(() => {
@@ -915,37 +886,27 @@
       });
     }
 
-    // Función para resetear/limpiar todo el formulario después del pedido
     function resetFormulario() {
-      // Limpiar datos internos
       isUidValid = false;
       selectedCpData = null;
       selectedPayment = null;
 
-      // Limpiar Input y Mensaje de UID
       if (playerIdInput) playerIdInput.value = '';
       if (playerStatus) playerStatus.innerHTML = '';
 
-      // Quitar selección de CP
       cpCards.forEach(c => c.classList.remove('selected'));
-
-      // Quitar selección de Pago
       payOptions.forEach(p => p.classList.remove('selected'));
 
-      // Limpiar resumen
       if (sumUID) sumUID.textContent = 'No ingresado';
       if (sumPack) sumPack.textContent = 'Ninguno';
       if (sumPay) sumPay.textContent = 'No seleccionado';
       if (sumTotal) sumTotal.textContent = '$0.00 USD';
 
-      // Deshabilitar botón
       if (payBtn) payBtn.disabled = true;
     }
 
-    // 6. Modal de Confirmación y Envío a Sheets
     if (payBtn) {
       payBtn.addEventListener('click', () => {
-        // Enviar a Google Sheets
         guardarEnBaseDeDatos(
           playerIdInput.value,
           selectedCpData.cp.includes('Pase') ? selectedCpData.cp : `${selectedCpData.cp} CP`,
@@ -953,16 +914,13 @@
           `$${selectedCpData.price} USD`
         );
 
-        // Mostrar en el Modal
         if (modalUID) modalUID.textContent = playerIdInput.value;
         if (modalPack) modalPack.textContent = selectedCpData.cp.includes('Pase') ? selectedCpData.cp : `${selectedCpData.cp} CP`;
         if (modalPay) modalPay.textContent = selectedPayment;
         if (modalTotal) modalTotal.textContent = `$${selectedCpData.price} USD`;
 
-        // Mostrar modal
         if (modalOverlay) modalOverlay.classList.add('active');
 
-        // Limpiar el formulario para la próxima recarga
         resetFormulario();
       });
     }
